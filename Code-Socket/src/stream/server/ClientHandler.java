@@ -55,7 +55,7 @@ public class ClientHandler implements Runnable {
                 String MsgToSend = st.nextToken();
                 String recipient = st.nextToken();
 
-                for (ClientHandler ch : Server.connectedClients)
+                for (ClientHandler ch : EchoServer.connectedClients)
                 {
                     // if the recipient is found, write on its
                     // output stream
