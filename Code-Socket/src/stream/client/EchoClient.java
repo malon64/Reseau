@@ -74,8 +74,10 @@ public class EchoClient {
                             // read the message sent to this client
                             String msg = dis.readUTF();
                             System.out.println(msg);
+                        } catch(EOFException eof) {
+                            System.out.println("Communication ended");
+                            System.exit(0);
                         } catch (IOException e) {
-
                             e.printStackTrace();
                         }
                     }
