@@ -28,15 +28,16 @@ public class EchoClient {
 
         String username = "";
 
-        if (args.length != 3) {
-            System.out.println("Usage: java EchoClient <EchoServer host> <EchoServer port> <EchoServer username>");
+        if (args.length != 1) {
+            System.out.println("Usage: java EchoClient <EchoServer username>");
             System.exit(1);
         }
 
         try {
             // creation socket ==> connexion
-            username = args[2];
-            echoSocket = new Socket(args[0], Integer.parseInt(args[1]));
+            username = args[0];
+            InetAddress ip = InetAddress.getByName("localhost");
+            echoSocket = new Socket(ip, 1234);
             // obtaining input and out streams
             DataInputStream dis = new DataInputStream(echoSocket.getInputStream());
             DataOutputStream dos = new DataOutputStream(echoSocket.getOutputStream());
