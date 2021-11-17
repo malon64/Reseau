@@ -5,15 +5,15 @@ package models;
 import java.util.Vector;
 import stream.server.ClientHandler;
 
-public class Room {
+public class Conversation {
     private String name;
     private Vector<ClientHandler> members;
 
-    public Room(String name) {
+    public Conversation(String name) {
         this.name = name;
     }
 
-    public Room(String name, Vector<ClientHandler> members) {
+    public Conversation(String name, Vector<ClientHandler> members) {
         this.name = name;
         this.members = members;
     }
@@ -34,5 +34,11 @@ public class Room {
         this.members = members;
     }
 
-    public void addMember()
+    public void addMember(ClientHandler newMember){
+        this.members.add(newMember);
+    }
+
+    public void deleteMember(ClientHandler member){
+        this.members.remove(member);
+    }
 }
