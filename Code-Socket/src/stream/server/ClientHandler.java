@@ -79,10 +79,10 @@ public class ClientHandler implements Runnable {
                     for (Conversation conv : EchoServer.conversations) {
                         boolean isPresent = false;
                         for (Client cl : conv.getMembers()) {
-                            if (cl.equals(client)) isPresent = true;
+                            System.out.println(cl.getUsername());
+                            if (cl.getUsername().equals(client.getUsername())) isPresent = true;
                         }
-                        System.out.println("-" + conv.getName());
-                        dos.writeUTF("-" + conv.getName());
+                        if (isPresent) dos.writeUTF("-" + conv.getName());
                     }
 
                 } else if (line.equals("logout")) {    //The user wants to logout

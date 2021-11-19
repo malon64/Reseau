@@ -44,7 +44,7 @@ public class EchoServer {
 
     public static ClientHandler findClientHandler(Client client) {
         for (ClientHandler ch : connectedClients) {
-            if (ch.getClient().equals(client)) {
+            if (ch.getUsername().equals(client.getUsername())) {
                 return ch;
             }
         }
