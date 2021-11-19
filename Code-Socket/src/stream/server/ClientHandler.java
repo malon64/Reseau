@@ -7,6 +7,10 @@
 
 package stream.server;
 
+import models.Client;
+import models.Conversation;
+import models.Message;
+
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
@@ -16,8 +20,23 @@ public class ClientHandler implements Runnable {
 
     Scanner scn = new Scanner(System.in);
     private Socket clientSocket;
+
+    public String getUsername() {
+        return username;
+    }
+
     private String username;
     private boolean isloggedin;
+
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
+    private Client client;
     final DataInputStream dis;
     final DataOutputStream dos;
 
@@ -29,14 +48,10 @@ public class ClientHandler implements Runnable {
 
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-
     public void run() {
         try {
             username = dis.readUTF();
+            client = new Client(username);
             System.out.println("Username : " + username);
             String line;
             while (true) {
@@ -44,25 +59,52 @@ public class ClientHandler implements Runnable {
                 line = dis.readUTF();
                 System.out.println("Received : " + line);
 
-                if(line.equals("logout")){
+                //The user wants to add a new conversation
+                if (line.charAt(0) == '+') {
+                    String content = line.substring(1);
+                    String [] arguments = content.split(";");
+                    String convName = arguments[0];
+                    System.out.println(convName);
+                    Conversation conv = new Conversation(convName);
+                    for (int i = 1; i < arguments.length; i++) {
+                        String member = arguments[i];
+                        System.out.println(member);
+                        if (!member.isEmpty()) conv.addMember(new Client(member));
+                    }
+                    EchoServer.conversations.add(conv);
+
+                //The user wants to see the conversations he is in
+                } else if (line.charAt(0) == '?') {
+
+                    for (Conversation conv : EchoServer.conversations) {
+                        boolean isPresent = false;
+                        for (Client cl : conv.getMembers()) {
+                            if (cl.equals(client)) isPresent = true;
+                        }
+                        System.out.println("-" + conv.getName());
+                        dos.writeUTF("-" + conv.getName());
+                    }
+
+                } else if (line.equals("logout")) {    //The user wants to logout
                     this.isloggedin=false;
                     this.clientSocket.close();
                     break;
-                }
 
-                // break the string into message and recipient part
-                StringTokenizer st = new StringTokenizer(line, "#");
-                String MsgToSend = st.nextToken();
-                String recipient = st.nextToken();
+                } else {
 
-                for (ClientHandler ch : EchoServer.connectedClients)
-                {
-                    // if the recipient is found, write on its
-                    // output stream
-                    if (ch.getUsername().equals(recipient) && ch.isloggedin==true)
-                    {
-                        ch.dos.writeUTF(this.username+" : "+MsgToSend);
-                        break;
+                    // break the string into message and recipient part
+                    StringTokenizer st = new StringTokenizer(line, "#");
+                    String content = st.nextToken();
+                    String recipient = st.nextToken();
+                    Message message = new Message(client, content);
+
+                    Conversation conversation = EchoServer.findConversationByName(recipient);
+                    for (Client client : conversation.getMembers()) {
+                        ClientHandler clientHandler = EchoServer.findClientHandler(client);
+                        if (clientHandler != null && clientHandler.isloggedin) {
+                            clientHandler.dos.writeUTF(this.username + " > " + message.getContent());
+                            break;
+                        }
                     }
                 }
             }

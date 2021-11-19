@@ -7,13 +7,14 @@ import stream.server.ClientHandler;
 
 public class Conversation {
     private String name;
-    private Vector<ClientHandler> members;
+    private Vector<Client> members;
 
     public Conversation(String name) {
         this.name = name;
+        this.members = new Vector<>();
     }
 
-    public Conversation(String name, Vector<ClientHandler> members) {
+    public Conversation(String name, Vector<Client> members) {
         this.name = name;
         this.members = members;
     }
@@ -26,19 +27,19 @@ public class Conversation {
         this.name = name;
     }
 
-    public Vector<ClientHandler> getMembers() {
+    public Vector<Client> getMembers() {
         return members;
     }
 
-    public void setMembers(Vector<ClientHandler> members) {
+    public void setMembers(Vector<Client> members) {
         this.members = members;
     }
 
-    public void addMember(ClientHandler newMember){
+    public void addMember(Client newMember){
         this.members.add(newMember);
     }
 
-    public void deleteMember(ClientHandler member){
+    public void deleteMember(Client member){
         this.members.remove(member);
     }
 }
