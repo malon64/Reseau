@@ -64,11 +64,9 @@ public class ClientHandler implements Runnable {
                     String content = line.substring(1);
                     String [] arguments = content.split(";");
                     String convName = arguments[0];
-                    System.out.println(convName);
                     Conversation conv = new Conversation(convName);
                     for (int i = 1; i < arguments.length; i++) {
                         String member = arguments[i];
-                        System.out.println(member);
                         if (!member.isEmpty()) conv.addMember(new Client(member));
                     }
                     EchoServer.conversations.add(conv);
@@ -79,7 +77,6 @@ public class ClientHandler implements Runnable {
                     for (Conversation conv : EchoServer.conversations) {
                         boolean isPresent = false;
                         for (Client cl : conv.getMembers()) {
-                            System.out.println(cl.getUsername());
                             if (cl.getUsername().equals(client.getUsername())) isPresent = true;
                         }
                         if (isPresent) dos.writeUTF("-" + conv.getName());
@@ -91,7 +88,6 @@ public class ClientHandler implements Runnable {
                     break;
 
                 } else {
-
                     // break the string into message and recipient part
                     StringTokenizer st = new StringTokenizer(line, "#");
                     String content = st.nextToken();
@@ -102,8 +98,7 @@ public class ClientHandler implements Runnable {
                     for (Client client : conversation.getMembers()) {
                         ClientHandler clientHandler = EchoServer.findClientHandler(client);
                         if (clientHandler != null && clientHandler.isloggedin) {
-                            clientHandler.dos.writeUTF(this.username + " > " + message.getContent());
-                            break;
+                            clientHandler.dos.writeUTF( conversation.getName() + ": " + this.username + " > " + message.getContent());
                         }
                     }
                 }
