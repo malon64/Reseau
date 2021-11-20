@@ -11,6 +11,7 @@ import models.Client;
 import models.Conversation;
 import models.Message;
 
+import javax.tools.JavaFileManager;
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
@@ -43,7 +44,7 @@ public class ClientHandler implements Runnable {
     ClientHandler(Socket s, DataInputStream dis, DataOutputStream dos) {
         this.clientSocket = s;
         this.isloggedin = true;
-        this.dis =dis;
+        this.dis = dis;
         this.dos = dos;
 
     }
@@ -56,23 +57,29 @@ public class ClientHandler implements Runnable {
             String line;
             while (true) {
 
-                line = dis.readUTF();
-                System.out.println("Received : " + line);
+
+                dos.writeUTF("|  MENU    |");
+                dos.writeUTF("| Options:                 |");
+                dos.writeUTF("1. Create a conversation");
+                dos.writeUTF("2. Join a conversation, to exit write -Exit");
+                dos.writeUTF("3. See my conversations");
+                dos.writeUTF("4. Logout");
+
+
+                String choice = dis.readUTF();
+                System.out.println("Received : " + choice);
+
+
 
                 //The user wants to add a new conversation
-                if (line.charAt(0) == '+') {
-                    String content = line.substring(1);
-                    String [] arguments = content.split(";");
-                    String convName = arguments[0];
-                    Conversation conv = new Conversation(convName);
-                    for (int i = 1; i < arguments.length; i++) {
-                        String member = arguments[i];
-                        if (!member.isEmpty()) conv.addMember(new Client(member));
-                    }
-                    EchoServer.conversations.add(conv);
-
-                //The user wants to see the conversations he is in
-                } else if (line.charAt(0) == '?') {
+                if (choice.equals("1")) {
+                    dos.writeUTF("Name : ");
+                    String convName = dis.readUTF();
+                    dos.writeUTF("Members : ");
+                    String[] arguments = dis.readUTF().split(";");
+                    createConversation(convName, arguments);
+                    //The user wants to see the conversations he is in
+                } else if (choice.equals("3")) {
 
                     for (Conversation conv : EchoServer.conversations) {
                         boolean isPresent = false;
@@ -82,25 +89,28 @@ public class ClientHandler implements Runnable {
                         if (isPresent) dos.writeUTF("-" + conv.getName());
                     }
 
-                } else if (line.equals("logout")) {    //The user wants to logout
-                    this.isloggedin=false;
+                } else if (choice.equals("2")) {
+                    String convChoice = dis.readUTF();
+                    Conversation conversation = EchoServer.findConversationByName(convChoice);
+                    if (conversation.findClientinConv(client) == null){
+                        conversation.addMember(client);
+                    }
+                    while (true) {
+                        String content = dis.readUTF();
+                        if (content.equals("exit")) {
+                            break;
+                        }
+                        Message message = new Message(client, content);
+                        sendToGroup(conversation, message);
+                    }
+
+
+                } else if (choice.equals("4")) {    //The user wants to logout
+                    this.isloggedin = false;
                     this.clientSocket.close();
                     break;
 
-                } else {
-                    // break the string into message and recipient part
-                    StringTokenizer st = new StringTokenizer(line, "#");
-                    String content = st.nextToken();
-                    String recipient = st.nextToken();
-                    Message message = new Message(client, content);
 
-                    Conversation conversation = EchoServer.findConversationByName(recipient);
-                    for (Client client : conversation.getMembers()) {
-                        ClientHandler clientHandler = EchoServer.findClientHandler(client);
-                        if (clientHandler != null && clientHandler.isloggedin) {
-                            clientHandler.dos.writeUTF( conversation.getName() + ": " + this.username + " > " + message.getContent());
-                        }
-                    }
                 }
             }
             this.dis.close();
@@ -110,6 +120,29 @@ public class ClientHandler implements Runnable {
             e.printStackTrace();
         }
     }
+
+    public void sendToGroup(Conversation conversation, Message message) throws IOException {
+        conversation.addMessage(message);
+        for (Client client : conversation.getMembers()) {
+            ClientHandler clientHandler = EchoServer.findClientHandler(client);
+            if (clientHandler != null && clientHandler.isloggedin) {
+                clientHandler.dos.writeUTF(conversation.getName() + ": " + this.username + " > " + message.getContent());
+            }
+        }
+    }
+
+    public void createConversation(String convName, String[] arguments){
+        Conversation conv = new Conversation(convName);
+        for (int i = 0; i < arguments.length; i++) {
+            String member = arguments[i];
+            if (!member.isEmpty()) conv.addMember(new Client(member));
+        }
+        EchoServer.conversations.add(conv);
+
+    }
+
+
+
 
 }
 

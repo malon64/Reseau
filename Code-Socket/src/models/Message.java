@@ -5,6 +5,7 @@ public class Message {
     private Client sender;
     private String content;
 
+
     public Message(Client sender, String content) {
         this.sender = sender;
         this.content = content;
