@@ -81,12 +81,10 @@ public class ClientHandler implements Runnable {
                     //The user wants to see the conversations he is in
                 } else if (choice.equals("3")) {
 
-                    for (Conversation conv : EchoServer.conversations) {
-                        boolean isPresent = false;
-                        for (Client cl : conv.getMembers()) {
-                            if (cl.getUsername().equals(client.getUsername())) isPresent = true;
+                    for (Conversation conversation : EchoServer.conversations){
+                        if (conversation.findClientinConv(client) != null){
+                            dos.writeUTF("-" + conversation.getName());
                         }
-                        if (isPresent) dos.writeUTF("-" + conv.getName());
                     }
 
                 } else if (choice.equals("2")) {
@@ -138,6 +136,15 @@ public class ClientHandler implements Runnable {
             if (!member.isEmpty()) conv.addMember(new Client(member));
         }
         EchoServer.conversations.add(conv);
+        {
+            for (Conversation convo : EchoServer.conversations){
+                System.out.println(convo.getName());
+                for (Client c : convo.getMembers()){
+                    System.out.println(c.getUsername());
+                }
+
+            }
+        }
 
     }
 
