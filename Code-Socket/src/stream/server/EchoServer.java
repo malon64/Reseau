@@ -12,6 +12,8 @@ import models.Conversation;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.*;
 import java.util.*;
 
@@ -20,8 +22,10 @@ public class EchoServer {
 
     static Vector<ClientHandler> connectedClients = new Vector<>();
     static Vector<Conversation> conversations = new Vector<>();
-    public static void main(String args[]) {
+
+    public static void main(String args[]) throws FileNotFoundException {
         ServerSocket listenSocket;
+        loadConversations();
         try {
             listenSocket = new ServerSocket(1234); //port
             System.out.println("Server ready...");
@@ -51,6 +55,15 @@ public class EchoServer {
         return null;
     }
 
+    public static Client findClientByName(String name){
+        for (ClientHandler ch : connectedClients) {
+            if (ch.getUsername().equals(name)) {
+                return ch.getClient();
+            }
+        }
+        return null;
+    }
+
     public static Conversation findConversationByName(String name) {
         for (Conversation conv : conversations) {
             if (conv.getName().equals(name)) {
@@ -61,6 +74,38 @@ public class EchoServer {
     }
 
 
+    public static void loadConversations() throws FileNotFoundException {
+        File dir = new File("Code-Socket/files");
+        String[] pathNames = dir.list();
+        for (String fileName : pathNames) {
+            if (findConversationByName(fileName) == null) {
+                Conversation conv = new Conversation(fileName);
+                File file = new File("Code-Socket/files/" + fileName);
+                Scanner reader = new Scanner(file);
+                String data = reader.nextLine();
+                int ind = data.indexOf(":") + 1;
+                if (ind != -1) {
+                    String[] members = data.substring(ind).split(";");
+                    for (String member : members) {
+                        System.out.println(member);
+                        Client client = new Client(member);
+                        if (EchoServer.findClientHandler(client) == null) {
+                            conv.addMember(client);
+                        }
+                    }
+                }
+                conversations.add(conv);
+            }
+        }
+    }
+
+
+
 }
+
+
+
+
+
 
   

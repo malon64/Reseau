@@ -14,6 +14,7 @@ import models.Message;
 import javax.tools.JavaFileManager;
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
@@ -54,6 +55,10 @@ public class ClientHandler implements Runnable {
             username = dis.readUTF();
             client = new Client(username);
             System.out.println("Username : " + username);
+
+
+
+
             String line;
             while (true) {
 
@@ -82,6 +87,7 @@ public class ClientHandler implements Runnable {
                 } else if (choice.equals("3")) {
 
                     for (Conversation conversation : EchoServer.conversations){
+                        System.out.println("conversation is" + conversation.getName() + " " + conversation.getMembers());
                         if (conversation.findClientinConv(client) != null){
                             dos.writeUTF("-" + conversation.getName());
                         }
@@ -93,6 +99,7 @@ public class ClientHandler implements Runnable {
                     if (conversation.findClientinConv(client) == null){
                         conversation.addMember(client);
                     }
+                    readMessagesFromFile(convChoice);
                     while (true) {
                         String content = dis.readUTF();
                         if (content.equals("exit")) {
@@ -121,6 +128,7 @@ public class ClientHandler implements Runnable {
 
     public void sendToGroup(Conversation conversation, Message message) throws IOException {
         conversation.addMessage(message);
+        writeMessageInFile(conversation.getName(), message);
         for (Client client : conversation.getMembers()) {
             ClientHandler clientHandler = EchoServer.findClientHandler(client);
             if (clientHandler != null && clientHandler.isloggedin) {
@@ -129,22 +137,55 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    public void createConversation(String convName, String[] arguments){
+    public void createConversation(String convName, String[] arguments) throws IOException {
         Conversation conv = new Conversation(convName);
         for (int i = 0; i < arguments.length; i++) {
             String member = arguments[i];
             if (!member.isEmpty()) conv.addMember(new Client(member));
         }
         EchoServer.conversations.add(conv);
-        {
-            for (Conversation convo : EchoServer.conversations){
-                System.out.println(convo.getName());
-                for (Client c : convo.getMembers()){
-                    System.out.println(c.getUsername());
-                }
-
+        // file param
+        File convFile = new File("Code-Socket/files/"+conv.getName());
+        System.out.println(convFile.getAbsolutePath());
+        // if file doesnt exist
+        if (convFile.createNewFile()){
+            FileWriter output = new FileWriter(convFile);
+            String convParam = conv.getName()+":";
+            for (Client c : conv.getMembers()){
+                convParam += c.getUsername()+";";
             }
+            output.write(convParam);
+            output.close();
         }
+        // do nothing when file already exists
+    }
+
+    public void writeMessageInFile(String convName, Message message) throws IOException {
+        FileWriter fstream = new FileWriter("Code-Socket/files/"+convName, true);
+        BufferedWriter out = new BufferedWriter(fstream);
+        String sender = message.getSender().getUsername();
+        String content = message.getContent();
+        String line = sender+">"+content;
+        out.newLine();
+        out.write(line);
+        out.close();
+    }
+
+    public void readMessagesFromFile(String convName) throws IOException {
+        File file = new File("Code-Socket/files/" + convName);
+        Scanner reader = new Scanner(file);
+        // dont read first line
+        reader.nextLine();
+        while(reader.hasNextLine()){
+            String data = reader.nextLine();
+            dos.writeUTF(data);
+            String senderName = data.split(">")[0];
+            Client sender = EchoServer.findClientByName(senderName);
+            String content = data.split(">")[1];
+            Message message = new Message(sender, content);
+            EchoServer.findConversationByName(convName).addMessage(message);
+        }
+
 
     }
 
