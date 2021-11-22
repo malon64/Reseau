@@ -17,7 +17,8 @@ public class WebPing {
       httpServerPort = Integer.parseInt(args[1]);
 
     try {
-      InetAddress addr;      Socket sock = new Socket(httpServerHost, httpServerPort);
+      InetAddress addr;
+      Socket sock = new Socket(httpServerHost, httpServerPort);
       addr = sock.getInetAddress();
       System.out.println("Connected to " + addr);
       sock.close();
