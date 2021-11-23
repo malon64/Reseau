@@ -75,13 +75,13 @@ public class EchoServer {
 
 
     public static void loadConversations() throws FileNotFoundException {
-        File dir = new File("Code-Socket/files");
+        File dir = new File("files");
         String[] pathNames = dir.list();
         if (pathNames != null){
             for (String fileName : pathNames) {
                 if (findConversationByName(fileName) == null) {
                     Conversation conv = new Conversation(fileName);
-                    File file = new File("Code-Socket/files/" + fileName);
+                    File file = new File("files/" + fileName);
                     Scanner reader = new Scanner(file);
                     String data = reader.nextLine();
                     int ind = data.indexOf(":") + 1;

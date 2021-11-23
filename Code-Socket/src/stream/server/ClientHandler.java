@@ -94,6 +94,7 @@ public class ClientHandler implements Runnable {
                     }
 
                 } else if (choice.equals("2")) {
+                    dos.writeUTF("Name: ");
                     String convChoice = dis.readUTF();
                     Conversation conversation = EchoServer.findConversationByName(convChoice);
                     if (conversation.findClientinConv(client) == null){
@@ -145,7 +146,7 @@ public class ClientHandler implements Runnable {
         }
         EchoServer.conversations.add(conv);
         // file param
-        File convFile = new File("Code-Socket/files/"+conv.getName());
+        File convFile = new File("files/"+conv.getName());
         System.out.println(convFile.getAbsolutePath());
         // if file doesnt exist
         if (convFile.createNewFile()){
@@ -161,7 +162,7 @@ public class ClientHandler implements Runnable {
     }
 
     public void writeMessageInFile(String convName, Message message) throws IOException {
-        FileWriter fstream = new FileWriter("Code-Socket/files/"+convName, true);
+        FileWriter fstream = new FileWriter("files/"+convName, true);
         BufferedWriter out = new BufferedWriter(fstream);
         String sender = message.getSender().getUsername();
         String content = message.getContent();
@@ -172,7 +173,7 @@ public class ClientHandler implements Runnable {
     }
 
     public void readMessagesFromFile(String convName) throws IOException {
-        File file = new File("Code-Socket/files/" + convName);
+        File file = new File("files/" + convName);
         Scanner reader = new Scanner(file);
         // dont read first line
         reader.nextLine();
