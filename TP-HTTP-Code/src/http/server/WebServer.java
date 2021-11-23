@@ -17,11 +17,11 @@ import java.net.Socket;
  * @version 1.0
  */
 public class WebServer {
-  /**Chemin relatif du repertoire de ressources du serveur*/
+
   protected static final String RESOURCE_DIRECTORY = "files";
-  /**Chemin relatif de la page web à envoyer en cas d'erreur 404*/
+
   protected static final String FILE_NOT_FOUND = "files/notfound.html";
-  /**Chemin relatif de la page d'acceuil du serveur*/
+
   protected static final String INDEX = "files/win.html";
   /**
    * WebServer constructor.
@@ -165,13 +165,10 @@ public class WebServer {
   }
 
   /**
-   * Impl�mentation de la m�thode HTTP HEAD.
-   * Cette m�thode v�rifie l'existence de la ressource, et retourne un en-t�te qui contient les m�mes informations que la requ�te GET correspondante.
-   * Le code de retour peut �tre 200 OK si le fichier a �t� trouv�, ou 404 Not Found si le fichier n'a pas �t� trouv�.
-   * La m�thode HEAD ne renvoie pas de corps.
-   * @param in Flux de lecture binaire sur le socket client.
-   * @param out Flux d'�criture binaire vers le socket client auquel il faut envoyer une r�ponse.
-   * @param filename Chemin du fichier sur lequel le client veut obtenir des informations.
+   *
+   * @param in
+   * @param out
+   * @param filename
    */
   protected void httpHEAD(BufferedInputStream in, BufferedOutputStream out, String filename) {
     System.out.println("HEAD " + filename);
@@ -199,9 +196,9 @@ public class WebServer {
 
   /**
    *
-   * @param in Flux de lecture binaire sur le socket client.
-   * @param out Flux d'�criture binaire vers le socket client auquel il faut envoyer une r�ponse.
-   * @param filename Chemin du fichier � cr�er (ou �craser).
+   * @param in
+   * @param out
+   * @param filename
    */
   protected void httpPUT(BufferedInputStream in, BufferedOutputStream out, String filename) {
     System.out.println("PUT " + filename);
@@ -248,14 +245,10 @@ public class WebServer {
   }
 
   /**
-   * Impl�mentation de la m�thode HTTP POST.
-   * Cette m�thode tente d'ajouter des informations � la fin d'une ressource existante, les informations � ajouter �tant les donn�es du corps de la requ�te re�ue.
-   * Si la ressource existait d�j� sur le serveur, les donn�es sont ajout�es � la fin et l'en-t�te de la r�ponse envoy�e a un code de 200 OK.
-   * Si la ressource n'existait pas, elle est cr��e et l'en-t�te de la r�ponse envoy�e a un code de 201 Created.
-   * La r�ponse ne contient pas de corps.
-   * @param in Flux de lecture binaire sur le socket client.
-   * @param out Flux d'�criture binaire vers le socket client auquel il faut envoyer une r�ponse.
-   * @param filename Chemin du fichier auquel il faut rajouter des informations (ou qu'il faut cr�er).
+   *
+   * @param in
+   * @param out
+   * @param filename
    */
   protected void httpPOST(BufferedInputStream in, BufferedOutputStream out, String filename) {
     System.out.println("POST " + filename);
@@ -298,13 +291,9 @@ public class WebServer {
   }
 
   /**
-   * Impl�mentation de la m�thode HTTP DELETE.
-   * Cette m�thode tente de supprimer la ressource d�sign�e par le chemin filename.
-   * Si la ressource a bien �t� supprim�e, l'en-t�te de la r�ponse envoy�e contient le code 204 No Content.
-   * SI la ressource n'existait pas, l'en-t�te de la r�ponse envoy�e contient le code 404 Not Found.
-   * Si la ressource existait mais n'a pas pu �tre supprim�e, l'en-t�te de la r�ponse contient le code 403 Forbidden.
-   * @param out Flux d'�criture binaire vers le socket client auquel il faut envoyer une r�ponse.
-   * @param filename Chemin du fichier � supprimer.
+   *
+   * @param out
+   * @param filename
    */
   protected void httpDELETE(BufferedOutputStream out, String filename) {
     System.out.println("DELETE " + filename);
@@ -341,10 +330,9 @@ public class WebServer {
   }
 
   /**
-   * Cette m�thode permet de cr�er un en-t�te de r�ponse HTML simple, pour une r�ponse qui n'a pas de corps.
-   * L'en-t�te cr�� contient un code de retour et pr�cise le type du serveur : Bot.
-   * @param status Le code de r�ponse HTML � fournir dans l'en-t�te.
-   * @return L'en-t�te de r�ponse HTML.
+   *
+   * @param status
+   * @return
    */
   protected String makeHeader(String status) {
     String header = "HTTP/1.0 " + status + "\r\n";
@@ -356,12 +344,11 @@ public class WebServer {
   }
 
   /**
-   * Cette m�thode permet de cr�er un en-t�te de r�ponse HTML, pour une r�ponse qui aura un corps.
-   * L'en-t�te cr�� contient un code de retour et pr�cise le type du serveur : Bot, le type de contenu du corps et la taille du corps en bytes.
-   * @param status Le code de retour.
-   * @param filename Le chemin vers la ressource associ�e � la r�ponse, dont le contenu sera renvoy� dans le corps de la r�ponse.
-   * @param length La taille de la ressource en bytes.
-   * @return L'en-t�te de r�ponse HTML.
+   *
+   * @param status
+   * @param filename
+   * @param length
+   * @return
    */
   protected String makeHeader(String status, String filename, long length) {
     String header = "HTTP/1.0 " + status + "\r\n";
@@ -395,7 +382,6 @@ public class WebServer {
    * Start the application.
    * 
    * @param args
-   *            Command line parameters are not used.
    */
   public static void main(String args[]) {
     WebServer ws = new WebServer();
