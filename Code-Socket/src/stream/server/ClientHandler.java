@@ -15,6 +15,10 @@ import javax.tools.JavaFileManager;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
@@ -99,6 +103,7 @@ public class ClientHandler implements Runnable {
                     Conversation conversation = EchoServer.findConversationByName(convChoice);
                     if (conversation.findClientinConv(client) == null){
                         conversation.addMember(client);
+                        addMemberToFile(conversation.getName(), client.getUsername());
                     }
                     readMessagesFromFile(convChoice);
                     while (true) {
@@ -186,13 +191,15 @@ public class ClientHandler implements Runnable {
             Message message = new Message(sender, content);
             EchoServer.findConversationByName(convName).addMessage(message);
         }
-
-
     }
 
-
-
-
+    public void addMemberToFile(String convName, String clientName) throws IOException {
+        Path path = Paths.get("files/"+convName);
+        List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+        String data = lines.get(0);
+        lines.set(0, data+clientName+";");
+        Files.write(path, lines, StandardCharsets.UTF_8);
+    }
 }
 
 
