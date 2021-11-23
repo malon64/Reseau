@@ -77,30 +77,29 @@ public class EchoServer {
     public static void loadConversations() throws FileNotFoundException {
         File dir = new File("Code-Socket/files");
         String[] pathNames = dir.list();
-        for (String fileName : pathNames) {
-            if (findConversationByName(fileName) == null) {
-                Conversation conv = new Conversation(fileName);
-                File file = new File("Code-Socket/files/" + fileName);
-                Scanner reader = new Scanner(file);
-                String data = reader.nextLine();
-                int ind = data.indexOf(":") + 1;
-                if (ind != -1) {
-                    String[] members = data.substring(ind).split(";");
-                    for (String member : members) {
-                        System.out.println(member);
-                        Client client = new Client(member);
-                        if (EchoServer.findClientHandler(client) == null) {
-                            conv.addMember(client);
+        if (pathNames != null){
+            for (String fileName : pathNames) {
+                if (findConversationByName(fileName) == null) {
+                    Conversation conv = new Conversation(fileName);
+                    File file = new File("Code-Socket/files/" + fileName);
+                    Scanner reader = new Scanner(file);
+                    String data = reader.nextLine();
+                    int ind = data.indexOf(":") + 1;
+                    if (ind != -1) {
+                        String[] members = data.substring(ind).split(";");
+                        for (String member : members) {
+                            System.out.println(member);
+                            Client client = new Client(member);
+                            if (EchoServer.findClientHandler(client) == null) {
+                                conv.addMember(client);
+                            }
                         }
                     }
+                    conversations.add(conv);
                 }
-                conversations.add(conv);
             }
         }
     }
-
-
-
 }
 
 
