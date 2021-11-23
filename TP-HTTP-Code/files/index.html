@@ -1,16 +1,102 @@
 <!doctype html>
 <html>
 
-    <head>
-        <title>Welcome !</title>
-    </head>
+<head>
+    <title>Welcome !</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
 
-    <body>
-    <h1>Congrats !</h1>
-    <div align="center">
-            <video width="500" height="500" autoplay>
-                <source src="videoplayback.mp4" type="video/mp4"/>
-            </video>
-        </div>
-    </body>
+<body>
+<h1>Congrats !</h1>
+
+
+<form action="" method="" class="get-form">
+    <h3> GET Request </h3>
+    <div class="get-form">
+        <label for="get-file">Write a file for GET Request (fileName+extension),
+            it has to be an existing data</label>
+        <input type="text"
+               id="get-file" name="get-file">
+    </div>
+    <div class="get-form">
+        <input type="button" id="get-button" value="GO GET IT!">
+    </div>
+</form>
+
+
+<form action="" method="post" class="post-form">
+    <div class="post-form">
+        <label for="name">Enter your name: </label>
+        <input type="text" name="name" id="name" required>
+    </div>
+    <div class="post-form">
+        <label for="email">Enter your email: </label>
+        <input type="email" name="email" id="email" required>
+    </div>
+    <div class="post-form">
+        <label for="email">Enter your school: </label>
+        <input type="text" name="school" id="school" required>
+    </div>
+    <div class="form-example">
+        <label for="post-file">Choose a file for POST Request</label>
+        <input type="file"
+               id="post-file" name="post-file"
+               accept="text/html, video/mp4, image/png, image/jpg, audio/mp3, video/x-msvideo, text/css, application/pdf, application/vnd.oasis.opendocument.text">
+    </div>
+    <div class="post-form">
+        <input type="submit" value="POST!">
+    </div>
+</form>
+
+
+<script>
+    $(document).ready(function () {
+
+
+        $("#get-button").click(function (event) {
+
+            let fileName = $("#get-file").val();
+
+
+            $.ajax({
+                url: fileName,
+                type: "get", //send it through get method
+
+                success: function (response) {
+                    window.location.href = window.location.href+"/"+fileName;
+                },
+                error: function (xhr) {
+                    //Do Something to handle error
+                }
+            });
+        });
+
+
+        // Attach a submit handler to the form
+        $(".post-form").submit(function (event) {
+
+            // Stop form from submitting normally
+            event.preventDefault();
+
+            // Get some values from elements on the page:
+            var $form = $(this),
+                term = $form.find("input[name='s']").val(),
+                url = $form.attr("action");
+
+            // Send the data using post
+            var posting = $.post(url, {s: term});
+
+            // Put the results in a div
+            posting.done(function (data) {
+                var content = $(data).find("#content");
+                $("#result").empty().append(content);
+            });
+        });
+
+
+    })
+</script>
+
+
+</body>
 </html>
