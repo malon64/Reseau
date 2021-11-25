@@ -1,9 +1,10 @@
 <!doctype html>
+<script crossorigin src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
 <html>
 
 <head>
     <title>Welcome !</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 
 <body>
@@ -27,131 +28,91 @@
 <h2> POST </h2>
 <div>
     <form method="post"> Select a file to POST:
-        <input type="file" name="filePOST" id="filePOST">
-        <input type="button" id="buttonPOST" value="Upload file" name="buttonPOST">
+        <input type="file" name="post-file" id="post-file" accept="text/html, video/mp4, image/png, image/jpg, audio/mp3, video/x-msvideo, text/css, application/pdf, application/vnd.oasis.opendocument.text"/>
     </form>
+    <div class="post-form">
+        <input type="button" id="post-button" value="POST" name="post-button"/>
+    </div>
 </div>
 
 
-<form action="" class="put-form" enctype="multipart/form-data">
+<div>
+    <form method="put"> Select a file to PUT:
+        <input type="file" name="put-file" id="put-file" accept="text/html, video/mp4, image/png, image/jpg, audio/mp3, video/x-msvideo, text/css, application/pdf, application/vnd.oasis.opendocument.text"/>
+    </form>
     <div class="put-form">
-        <label for="put-file">Choose a file for PUT Request</label>
-        <input type="file"
-               id="put-file" name="put-file"
-               accept="text/html, video/mp4, image/png, image/jpg, audio/mp3, video/x-msvideo, text/css, application/pdf, application/vnd.oasis.opendocument.text">
+        <input type="button" id="put-button" value="PUT" name="put-button"/>
     </div>
-    <div class="put-form">
-        <input type="submit" id="put-button" value="PUT!">
-    </div>
-</form>
+</div>
 
 
-<form action="" class="delete-form" enctype="multipart/form-data">
+<div>
+    <form method="delete"> Write the name of the file you want to DELETE:
+        <input type="text" name="delete-file" id="delete-file" />
+    </form>
     <div class="delete-form">
-        <label for="delete-file">Choose an existing file for DELETE Request</label>
-        <input type="file"
-               id="delete-file" name="delete-file"
-               accept="text/html, video/mp4, image/png, image/jpg, audio/mp3, video/x-msvideo, text/css, application/pdf, application/vnd.oasis.opendocument.text">
+        <input type="button" id="delete-button" value="DELETE" name="delete-button"/>
     </div>
-    <div class="delete-form">
-        <input type="submit" id="delete-button" value="DELETE!">
-    </div>
-</form>
+</div>
 
 
 <script>
     $(document).ready(function () {
 
 
-        $("#get-button").click(function (event) {
-            let fileName = $("#get-file").val();
+        $("#get-button").click((e) => {
+            let fileName = $("#get-file")[0].value;
             $.ajax({
                 url: fileName,
                 type: "get", //send it through get method
                 success: function (response) {
-                    window.location.href = window.location.href + "/" + fileName;
+                    window.location.href += fileName;
                 },
                 error: function (xhr) {
-                    //Do Something to handle error
+                    alert('File not found');
                 }
             });
         });
 
 
-        $("#buttonPOST").click(function () {
-            let file = $("#filePOST").val();
-            if (file !== "") {
-                let fileURL = file.split("\\").pop();
-
-                let formData = new FormData();
-                formData.append(fileURL, $("#filePOST").prop('files')[0]);
-                let settings = {
-                    "url": fileURL,
-                    "method": "POST",
-                    "data": formData,
-                    "timeout": 0,
-                    "processData": false,
-                    "contentType": false,
-                    "mimeType": "multipart/form-data",
-                    "success": function (response) {
-                        alert("File POSTED!");
-                    }
+        $("#post-button").click((e) => {
+            let file = $("#post-file")[0].files[0];
+            if (file !== null) {
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", file.name, true);
+                oReq.onload = function (oEvent) {
+                // Uploaded.
                 };
-                $.ajax(settings).done(function (response) {
-                        console.log(response);
-                    }
-                );
-
+                oReq.send(file);
+                alert(file.name + " posted !");
             }
         });
 
 
-        $("#put-button").click(function () {
-
-            let formData = new FormData();
-            let files = $('#put-file')[0].files;
-            let fileURL = $('#put-file')[0].files[0].name;
-            alert(fileURL);
-
-            var form = new FormData();
-            var filename = $('#post-file').val();
-            var leafname = filename.split('\\').pop().split('/').pop();
-            form.append(leafname, $("#post-file").prop('files')[0]);
-
-            // Check file selected or not
-            if (files.length > 0) {
-                formData.append('file', files[0]);
-
-                $.ajax({
-                    url: 'plan.png',
-                    type: 'post',
-                    data: form,
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        if (response != 0) {
-                            alert("file uploaded")
-                        } else {
-                            alert('file not uploaded');
-                        }
-                    },
-                });
-            } else {
-                alert("Please select a file.");
+        $("#put-button").click((e) => {
+            let file = $("#put-file")[0].files[0];
+            if (file !== null) {
+                var oReq = new XMLHttpRequest();
+                oReq.open("PUT", file.name, true);
+                oReq.onload = function (oEvent) {
+                // Uploaded.
+                };
+                oReq.send(file);
+                alert(file.name + " put !");
             }
         });
 
 
-        $("#delete-button").click(function () {
-            let fileURL = $('#delete-file').val();
-            if (fileURL !== null) {
-                let params = {
-                    url: fileURL,
-                    type: 'DELETE',
-                    success: function (result) {
-                        // do something
-                    }
-                }
+        $("#delete-button").click((e) => {
+            let fileName = $('#delete-file')[0].value;
+            if (fileName !== null) {
+                var oReq = new XMLHttpRequest();
+                oReq.open("DELETE", fileName, true);
+                oReq.onload = function (oEvent) {
+                // Uploaded.
+                };
+                oReq.send();
+                alert(fileName + " deleted !");
             }
 
 
