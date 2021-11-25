@@ -2,9 +2,13 @@
 
 package http.server;
 
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A webserver that store and manage some documents.
@@ -14,7 +18,7 @@ import java.net.Socket;
  */
 public class WebServer {
 
-  protected static final String RESOURCE_DIRECTORY = "files";
+  protected static final String RESOURCE_DIRECTORY = "files/public/";
 
   protected static final String FILE_NOT_FOUND = "files/notfound.html";
 
@@ -62,7 +66,8 @@ public class WebServer {
           header += (char) bcur;
         }
 
-        System.out.println("REQUEST :");
+        System.out.println("------REQUEST------");
+        System.out.println("Header :");
         System.out.println(header);
 
         if(bcur != -1 && !header.isEmpty()) {
@@ -75,38 +80,37 @@ public class WebServer {
                 //If there is no resource in the URL we send the index file
                 httpGET(out, INDEX);
               } else {
-                httpGET(out, RESOURCE_DIRECTORY + "/" + resourceName);
+                httpGET(out, RESOURCE_DIRECTORY + resourceName);
               }
 
             } else if(requestType.equals("PUT")) {
               if(!resourceName.isEmpty()) {
-                httpPUT(in, out, RESOURCE_DIRECTORY + "/" + resourceName);
+                httpPUT(in, out, RESOURCE_DIRECTORY + resourceName);
               } else {
-                out.write(makeHeader("404 Resource missing").getBytes());
+                out.write(makeHeader("400 Resource missing").getBytes());
                 out.flush();
               }
 
             } else if(requestType.equals("POST")) {
-              if(!resourceName.isEmpty()) {
-                httpPOST(in, out, RESOURCE_DIRECTORY + "/" + resourceName);
-              } else {
-                out.write(makeHeader("404 Resource missing").getBytes());
-                out.flush();
-              }
-
+            if(!resourceName.isEmpty()) {
+              httpPOST(in, out, RESOURCE_DIRECTORY + resourceName);
+            } else {
+              out.write(makeHeader("400 Resource missing").getBytes());
+              out.flush();
+            }
             } else if(requestType.equals("HEAD")) {
               //HEAD method is the same ad GET but with less informations
               if(resourceName.isEmpty()) {
                 httpHEAD(out, INDEX);
               } else {
-                httpHEAD(out, RESOURCE_DIRECTORY + "/" + resourceName);
+                httpHEAD(out, RESOURCE_DIRECTORY + resourceName);
               }
 
             } else if(requestType.equals("DELETE")) {
               if(!resourceName.isEmpty()) {
-                httpDELETE(out, RESOURCE_DIRECTORY + "/" + resourceName);
+                httpDELETE(out, RESOURCE_DIRECTORY  + resourceName);
               } else {
-                out.write(makeHeader("404 Resource missing").getBytes());
+                out.write(makeHeader("400 Resource missing").getBytes());
                 out.flush();
               }
 
@@ -118,6 +122,7 @@ public class WebServer {
           out.write(makeHeader("400 Bad Request").getBytes());
           out.flush();
         }
+        System.out.println("------------------");
         remote.close();
       } catch (Exception e) {
         e.printStackTrace();
@@ -134,8 +139,8 @@ public class WebServer {
 
   /**
    * This method respond to a get request by sending the chosen file
-   * @param out the output stream
-   * @param filename filename of the resource sent
+   * @param out output stream
+   * @param filename resource filename
    */
   protected void httpGET(BufferedOutputStream out, String filename) {
     System.out.println("GET " + filename);
@@ -168,9 +173,9 @@ public class WebServer {
   }
 
   /**
-   *
-   * @param out
-   * @param filename
+   * Respond to a HEAD request like a GET request but without its body
+   * @param out output stream
+   * @param filename resource filename
    */
   protected void httpHEAD(BufferedOutputStream out, String filename) {
     System.out.println("HEAD " + filename);
@@ -192,10 +197,10 @@ public class WebServer {
   }
 
   /**
-   *
-   * @param in
-   * @param out
-   * @param filename
+   * Respond to the PUT request by  adding the document in the correct repository and replacing it if already exists
+   * @param in input stream for reading the binary file
+   * @param out output stream
+   * @param filename resource filename
    */
   protected void httpPUT(BufferedInputStream in, BufferedOutputStream out, String filename) {
     System.out.println("PUT " + filename);
@@ -203,11 +208,11 @@ public class WebServer {
       File resource = new File(filename);
       boolean existed = resource.exists();
 
+      //For the PUT method we replace the existing document if it exists by the new one
       PrintWriter pw = new PrintWriter(resource);
       pw.close();
 
       BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(resource));
-
       byte[] buffer = new byte[256];
       while(in.available() > 0) {
         int nbRead = in.read(buffer);
@@ -232,14 +237,14 @@ public class WebServer {
   }
 
   /**
-   *
-   * @param in
-   * @param out
-   * @param filename
+   *  Responds to the POST request by creating a file in correct repository if it already doesn't exist
+   * @param in input stream for reading the binary file
+   * @param out output stream
    */
   protected void httpPOST(BufferedInputStream in, BufferedOutputStream out, String filename) {
-    System.out.println("POST " + filename);
+    System.out.println("POST ");
     try {
+
       File resource = new File(filename);
       boolean existed = resource.exists();
 
@@ -269,7 +274,7 @@ public class WebServer {
   }
 
   /**
-   *
+   * Responds to the DELETE request
    * @param out
    * @param filename
    */
@@ -285,8 +290,10 @@ public class WebServer {
 
       if(deleted) {
         out.write(makeHeader("204 Content deleted").getBytes());
+        out.write((filename + " has been deleted correctly.").getBytes());
       } else if (!existed) {
         out.write(makeHeader("404 Not Found").getBytes());
+        out.write((filename + " doesn't exists").getBytes());
       } else {
         out.write(makeHeader("403 Forbidden").getBytes());
       }
@@ -301,25 +308,25 @@ public class WebServer {
   }
 
   /**
-   *
-   * @param status
-   * @return
+   * Write the header following the http standard
+   * @param status response status
+   * @return the header written
    */
   protected String makeHeader(String status) {
     String header = "HTTP/1.0 " + status + "\r\n";
     header += "Server: Bot\r\n";
     header += "\r\n";
-    System.out.println("ANSWER HEADER :");
+    System.out.println("Response Header :");
     System.out.println(header);
     return header;
   }
 
   /**
-   * Write the header
-   * @param status
-   * @param filename
-   * @param length
-   * @return
+   * Write the header following the http standard
+   * @param status response status
+   * @param filename resource filename
+   * @param length resource length
+   * @return the header written
    */
   protected String makeHeader(String status, String filename, long length) {
     String header = "HTTP/1.0 " + status + "\r\n";
@@ -344,10 +351,11 @@ public class WebServer {
     header += "Content-Length: " + length + "\r\n";
     header += "Server: Bot\r\n";
     header += "\r\n";
-    System.out.println("ANSWER HEADER :");
+    System.out.println("Response Header :");
     System.out.println(header);
     return header;
   }
+
 
   /**
    * Start the application.
