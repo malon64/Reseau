@@ -24,27 +24,37 @@
 </form>
 
 
-<form action="" method="post" class="post-form">
-    <div class="post-form">
-        <label for="name">Enter your name: </label>
-        <input type="text" name="name" id="name" required>
-    </div>
-    <div class="post-form">
-        <label for="email">Enter your email: </label>
-        <input type="email" name="email" id="email" required>
-    </div>
-    <div class="post-form">
-        <label for="email">Enter your school: </label>
-        <input type="text" name="school" id="school" required>
-    </div>
-    <div class="form-example">
-        <label for="post-file">Choose a file for POST Request</label>
+<h2> POST </h2>
+<div>
+    <form method="post"> Select a file to POST:
+        <input type="file" name="filePOST" id="filePOST">
+        <input type="button" id="buttonPOST" value="Upload file" name="buttonPOST">
+    </form>
+</div>
+
+
+<form action="" class="put-form" enctype="multipart/form-data">
+    <div class="put-form">
+        <label for="put-file">Choose a file for PUT Request</label>
         <input type="file"
-               id="post-file" name="post-file"
+               id="put-file" name="put-file"
                accept="text/html, video/mp4, image/png, image/jpg, audio/mp3, video/x-msvideo, text/css, application/pdf, application/vnd.oasis.opendocument.text">
     </div>
-    <div class="post-form">
-        <input type="submit" value="POST!">
+    <div class="put-form">
+        <input type="submit" id="put-button" value="PUT!">
+    </div>
+</form>
+
+
+<form action="" class="delete-form" enctype="multipart/form-data">
+    <div class="delete-form">
+        <label for="delete-file">Choose an existing file for DELETE Request</label>
+        <input type="file"
+               id="delete-file" name="delete-file"
+               accept="text/html, video/mp4, image/png, image/jpg, audio/mp3, video/x-msvideo, text/css, application/pdf, application/vnd.oasis.opendocument.text">
+    </div>
+    <div class="delete-form">
+        <input type="submit" id="delete-button" value="DELETE!">
     </div>
 </form>
 
@@ -54,16 +64,12 @@
 
 
         $("#get-button").click(function (event) {
-
             let fileName = $("#get-file").val();
-
-
             $.ajax({
                 url: fileName,
                 type: "get", //send it through get method
-
                 success: function (response) {
-                    window.location.href = window.location.href+"/"+fileName;
+                    window.location.href = window.location.href + "/" + fileName;
                 },
                 error: function (xhr) {
                     //Do Something to handle error
@@ -72,25 +78,83 @@
         });
 
 
-        // Attach a submit handler to the form
-        $(".post-form").submit(function (event) {
+        $("#buttonPOST").click(function () {
+            let file = $("#filePOST").val();
+            if (file !== "") {
+                let fileURL = file.split("\\").pop();
 
-            // Stop form from submitting normally
-            event.preventDefault();
+                let formData = new FormData();
+                formData.append(fileURL, $("#filePOST").prop('files')[0]);
+                let settings = {
+                    "url": fileURL,
+                    "method": "POST",
+                    "data": formData,
+                    "timeout": 0,
+                    "processData": false,
+                    "contentType": false,
+                    "mimeType": "multipart/form-data",
+                    "success": function (response) {
+                        alert("File POSTED!");
+                    }
+                };
+                $.ajax(settings).done(function (response) {
+                        console.log(response);
+                    }
+                );
 
-            // Get some values from elements on the page:
-            var $form = $(this),
-                term = $form.find("input[name='s']").val(),
-                url = $form.attr("action");
+            }
+        });
 
-            // Send the data using post
-            var posting = $.post(url, {s: term});
 
-            // Put the results in a div
-            posting.done(function (data) {
-                var content = $(data).find("#content");
-                $("#result").empty().append(content);
-            });
+        $("#put-button").click(function () {
+
+            let formData = new FormData();
+            let files = $('#put-file')[0].files;
+            let fileURL = $('#put-file')[0].files[0].name;
+            alert(fileURL);
+
+            var form = new FormData();
+            var filename = $('#post-file').val();
+            var leafname = filename.split('\\').pop().split('/').pop();
+            form.append(leafname, $("#post-file").prop('files')[0]);
+
+            // Check file selected or not
+            if (files.length > 0) {
+                formData.append('file', files[0]);
+
+                $.ajax({
+                    url: 'plan.png',
+                    type: 'post',
+                    data: form,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response != 0) {
+                            alert("file uploaded")
+                        } else {
+                            alert('file not uploaded');
+                        }
+                    },
+                });
+            } else {
+                alert("Please select a file.");
+            }
+        });
+
+
+        $("#delete-button").click(function () {
+            let fileURL = $('#delete-file').val();
+            if (fileURL !== null) {
+                let params = {
+                    url: fileURL,
+                    type: 'DELETE',
+                    success: function (result) {
+                        // do something
+                    }
+                }
+            }
+
+
         });
 
 
