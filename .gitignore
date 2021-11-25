@@ -25,4 +25,4 @@ hs_err_pid*
 
 # files repository in both projects
 Code-Socket/files/*
-TP-HTTP-Code/files/*
+TP-HTTP-Code/files/public/*
