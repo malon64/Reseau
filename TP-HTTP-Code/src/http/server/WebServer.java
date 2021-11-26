@@ -6,9 +6,6 @@ package http.server;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A webserver that store and manage some documents.
@@ -23,9 +20,7 @@ public class WebServer {
   protected static final String FILE_NOT_FOUND = "files/notfound.html";
 
   protected static final String INDEX = "files/index.html";
-  /**
-   * WebServer constructor.
-   */
+
   protected void start(int port) {
     ServerSocket s;
 
@@ -78,14 +73,14 @@ public class WebServer {
           if(requestType.equals("GET")) {
               if(resourceName.isEmpty()) {
                 //If there is no resource in the URL we send the index file
-                httpGET(out, INDEX);
+                handleGET(out, INDEX);
               } else {
-                httpGET(out, RESOURCE_DIRECTORY + resourceName);
+                handleGET(out, RESOURCE_DIRECTORY + resourceName);
               }
 
             } else if(requestType.equals("PUT")) {
               if(!resourceName.isEmpty()) {
-                httpPUT(in, out, RESOURCE_DIRECTORY + resourceName);
+                handlePUT(in, out, RESOURCE_DIRECTORY + resourceName);
               } else {
                 out.write(makeHeader("400 Resource missing").getBytes());
                 out.flush();
@@ -93,22 +88,22 @@ public class WebServer {
 
             } else if(requestType.equals("POST")) {
             if(!resourceName.isEmpty()) {
-              httpPOST(in, out, RESOURCE_DIRECTORY + resourceName);
+              handlePOST(in, out, RESOURCE_DIRECTORY + resourceName);
             } else {
               out.write(makeHeader("400 Resource missing").getBytes());
               out.flush();
             }
             } else if(requestType.equals("HEAD")) {
-              //HEAD method is the same ad GET but with less informations
+              //HEAD method is the same ad GET but with fewer information
               if(resourceName.isEmpty()) {
-                httpHEAD(out, INDEX);
+                handleHEAD(out, INDEX);
               } else {
-                httpHEAD(out, RESOURCE_DIRECTORY + resourceName);
+                handleHEAD(out, RESOURCE_DIRECTORY + resourceName);
               }
 
             } else if(requestType.equals("DELETE")) {
               if(!resourceName.isEmpty()) {
-                httpDELETE(out, RESOURCE_DIRECTORY  + resourceName);
+                handleDELETE(out, RESOURCE_DIRECTORY  + resourceName);
               } else {
                 out.write(makeHeader("400 Resource missing").getBytes());
                 out.flush();
@@ -142,7 +137,7 @@ public class WebServer {
    * @param out output stream
    * @param filename resource filename
    */
-  protected void httpGET(BufferedOutputStream out, String filename) {
+  protected void handleGET(BufferedOutputStream out, String filename) {
     System.out.println("GET " + filename);
     try {
       File resource = new File(filename);
@@ -177,7 +172,7 @@ public class WebServer {
    * @param out output stream
    * @param filename resource filename
    */
-  protected void httpHEAD(BufferedOutputStream out, String filename) {
+  protected void handleHEAD(BufferedOutputStream out, String filename) {
     System.out.println("HEAD " + filename);
     try {
       File resource = new File(filename);
@@ -202,7 +197,7 @@ public class WebServer {
    * @param out output stream
    * @param filename resource filename
    */
-  protected void httpPUT(BufferedInputStream in, BufferedOutputStream out, String filename) {
+  protected void handlePUT(BufferedInputStream in, BufferedOutputStream out, String filename) {
     System.out.println("PUT " + filename);
     try {
       File resource = new File(filename);
@@ -241,7 +236,7 @@ public class WebServer {
    * @param in input stream for reading the binary file
    * @param out output stream
    */
-  protected void httpPOST(BufferedInputStream in, BufferedOutputStream out, String filename) {
+  protected void handlePOST(BufferedInputStream in, BufferedOutputStream out, String filename) {
     System.out.println("POST ");
     try {
 
@@ -274,11 +269,11 @@ public class WebServer {
   }
 
   /**
-   * Responds to the DELETE request
-   * @param out
-   * @param filename
+   * Responds to the DELETE request by deleting the chosen file
+   * @param out output stream
+   * @param filename name of the resource that needs to be deleted
    */
-  protected void httpDELETE(BufferedOutputStream out, String filename) {
+  protected void handleDELETE(BufferedOutputStream out, String filename) {
     System.out.println("DELETE " + filename);
     try {
       File resource = new File(filename);
@@ -358,12 +353,17 @@ public class WebServer {
 
 
   /**
-   * Start the application.
+   * Starts the application.
    * 
-   * @param args
+   * @param args potential port number
    */
   public static void main(String args[]) {
+    System.out.println("WebServer started, you can choose a specific port number by adding a parameter when running the program.");
     WebServer ws = new WebServer();
-    ws.start(3000);
+    int portNumber = 3000;
+    if (args.length > 0) {
+      portNumber = Integer.parseInt(args[0]);
+    }
+    ws.start(portNumber);
   }
 }

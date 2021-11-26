@@ -180,7 +180,7 @@ public class ClientHandler implements Runnable {
     public void readMessagesFromFile(String convName) throws IOException {
         File file = new File("files/" + convName);
         Scanner reader = new Scanner(file);
-        // dont read first line
+        // don't read first line
         reader.nextLine();
         while(reader.hasNextLine()){
             String data = reader.nextLine();
