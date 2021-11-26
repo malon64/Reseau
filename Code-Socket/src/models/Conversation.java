@@ -10,6 +10,10 @@ import java.util.Vector;
 import stream.server.ClientHandler;
 import stream.server.EchoServer;
 
+
+/**
+ * Class Conversation for handling conversations, their names and members
+ */
 public class Conversation {
     private String name;
     private Vector<Client> members;
@@ -51,6 +55,11 @@ public class Conversation {
         this.members.remove(member);
     }
 
+    /**
+     * returns a Client object corresponding to the client in entry, present in the actual conversation
+     * @param member
+     * @return
+     */
     public Client findClientinConv(Client member) {
         for (Client client : members) {
             if (client.getUsername().equals(member.getUsername())) {
@@ -68,9 +77,14 @@ public class Conversation {
         this.messages = messages;
     }
 
+    /**
+     * adds a Message object in the conversation
+     * @param message
+     */
     public void addMessage(Message message){
         this.messages.add(message);
     }
+
 
     public Conversation getConvFromFile(String convName) throws FileNotFoundException {
         File dir = new File("Code-Socket/files");

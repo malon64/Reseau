@@ -17,6 +17,7 @@ public class EchoClient {
     /**
      * main method
      * accepts a connection, receives a message from client then sends an echo to the client
+     * has two running threads, one for reading messages, and the other for writing 
      **/
     public static void main(String[] args) throws IOException {
 

@@ -22,6 +22,9 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
+/**
+ * Class ClientHandler to handle the connected client's user interface and thus choices
+ */
 public class ClientHandler implements Runnable {
 
     Scanner scn = new Scanner(System.in);
@@ -54,6 +57,9 @@ public class ClientHandler implements Runnable {
 
     }
 
+    /**
+     * the starting and running method when a client is created
+     */
     public void run() {
         try {
             username = dis.readUTF();
@@ -70,7 +76,7 @@ public class ClientHandler implements Runnable {
                 dos.writeUTF("|  MENU    |");
                 dos.writeUTF("| Options:                 |");
                 dos.writeUTF("1. Create a conversation");
-                dos.writeUTF("2. Join a conversation, to exit write -Exit");
+                dos.writeUTF("2. Join a conversation, to exit write : exit");
                 dos.writeUTF("3. See my conversations");
                 dos.writeUTF("4. Logout");
 
@@ -91,7 +97,6 @@ public class ClientHandler implements Runnable {
                 } else if (choice.equals("3")) {
 
                     for (Conversation conversation : EchoServer.conversations){
-                        System.out.println("conversation is" + conversation.getName() + " " + conversation.getMembers());
                         if (conversation.findClientinConv(client) != null){
                             dos.writeUTF("-" + conversation.getName());
                         }
@@ -101,20 +106,25 @@ public class ClientHandler implements Runnable {
                     dos.writeUTF("Name: ");
                     String convChoice = dis.readUTF();
                     Conversation conversation = EchoServer.findConversationByName(convChoice);
-                    if (conversation.findClientinConv(client) == null){
-                        conversation.addMember(client);
-                        addMemberToFile(conversation.getName(), client.getUsername());
-                    }
-                    readMessagesFromFile(convChoice);
-                    while (true) {
-                        String content = dis.readUTF();
-                        if (content.equals("exit")) {
-                            break;
+                    if (conversation == null){
+                        dos.writeUTF("Conversation doesn't exit yet");
+                    } else {
+                        if (conversation.findClientinConv(client) == null){
+                            conversation.addMember(client);
+                            addMemberToFile(conversation.getName(), client.getUsername());
                         }
-                        Message message = new Message(client, content);
-                        sendToGroup(conversation, message);
-                    }
+                        readMessagesFromFile(convChoice);
+                        dos.writeUTF("You can start chatting!");
+                        while (true) {
+                            String content = dis.readUTF();
+                            if (content.equals("exit")) {
+                                break;
+                            }
+                            Message message = new Message(client, content);
+                            sendToGroup(conversation, message);
+                        }
 
+                    }
 
                 } else if (choice.equals("4")) {    //The user wants to logout
                     this.isloggedin = false;
@@ -132,6 +142,12 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * This method sends a Message object to all members of the conversation in entry
+     * @param conversation
+     * @param message
+     * @throws IOException
+     */
     public void sendToGroup(Conversation conversation, Message message) throws IOException {
         conversation.addMessage(message);
         writeMessageInFile(conversation.getName(), message);
@@ -143,6 +159,13 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * This method creates a conversation with a given name and given members
+     * It also creates a file related to the conversation
+     * @param convName
+     * @param arguments
+     * @throws IOException
+     */
     public void createConversation(String convName, String[] arguments) throws IOException {
         Conversation conv = new Conversation(convName);
         for (int i = 0; i < arguments.length; i++) {
@@ -166,6 +189,12 @@ public class ClientHandler implements Runnable {
         // do nothing when file already exists
     }
 
+    /**
+     * Writes the given Message in the file related to the conversation
+     * @param convName
+     * @param message
+     * @throws IOException
+     */
     public void writeMessageInFile(String convName, Message message) throws IOException {
         FileWriter fstream = new FileWriter("files/"+convName, true);
         BufferedWriter out = new BufferedWriter(fstream);
@@ -177,6 +206,12 @@ public class ClientHandler implements Runnable {
         out.close();
     }
 
+    /**
+     * Reads all stored messages in the file related to the conversation and loads them
+     * in the Conversation object (for the application's duration of life)
+     * @param convName
+     * @throws IOException
+     */
     public void readMessagesFromFile(String convName) throws IOException {
         File file = new File("files/" + convName);
         Scanner reader = new Scanner(file);
@@ -193,6 +228,12 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Writes a new member in the conversation's file config
+     * @param convName
+     * @param clientName
+     * @throws IOException
+     */
     public void addMemberToFile(String convName, String clientName) throws IOException {
         Path path = Paths.get("files/"+convName);
         List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);

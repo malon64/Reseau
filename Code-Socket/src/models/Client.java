@@ -1,5 +1,9 @@
 package models;
 
+
+/**
+ * Class Client to handle his creation and username
+ */
 public class Client {
     private String username;
 

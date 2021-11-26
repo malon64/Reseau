@@ -17,12 +17,20 @@ import java.io.FileNotFoundException;
 import java.net.*;
 import java.util.*;
 
+/**
+ * EchoServer class to listen to connecting clients and loads conversations from stored files
+ */
 public class EchoServer {
 
 
     static Vector<ClientHandler> connectedClients = new Vector<>();
     static Vector<Conversation> conversations = new Vector<>();
 
+    /**
+     * Main class
+     * @param args
+     * @throws FileNotFoundException
+     */
     public static void main(String args[]) throws FileNotFoundException {
         ServerSocket listenSocket;
         loadConversations();
@@ -46,6 +54,11 @@ public class EchoServer {
         }
     }
 
+    /**
+     * Returns the ClientHandler object with a given client (in connectedClients)
+     * @param client
+     * @return
+     */
     public static ClientHandler findClientHandler(Client client) {
         for (ClientHandler ch : connectedClients) {
             if (ch.getUsername().equals(client.getUsername())) {
@@ -55,6 +68,11 @@ public class EchoServer {
         return null;
     }
 
+    /**
+     * Returns the Client object based on its name
+     * @param name
+     * @return
+     */
     public static Client findClientByName(String name){
         for (ClientHandler ch : connectedClients) {
             if (ch.getUsername().equals(name)) {
@@ -64,6 +82,11 @@ public class EchoServer {
         return null;
     }
 
+    /**
+     * Returns a Conversation object using a given name
+     * @param name
+     * @return
+     */
     public static Conversation findConversationByName(String name) {
         for (Conversation conv : conversations) {
             if (conv.getName().equals(name)) {
@@ -74,6 +97,10 @@ public class EchoServer {
     }
 
 
+    /**
+     * A method that loads a conversation from existing stored files
+     * @throws FileNotFoundException
+     */
     public static void loadConversations() throws FileNotFoundException {
         File dir = new File("files");
         String[] pathNames = dir.list();
@@ -88,7 +115,6 @@ public class EchoServer {
                     if (ind != -1) {
                         String[] members = data.substring(ind).split(";");
                         for (String member : members) {
-                            System.out.println(member);
                             Client client = new Client(member);
                             if (EchoServer.findClientHandler(client) == null) {
                                 conv.addMember(client);
