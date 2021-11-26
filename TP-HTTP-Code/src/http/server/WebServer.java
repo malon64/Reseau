@@ -15,13 +15,13 @@ import java.net.Socket;
  */
 public class WebServer {
 
-  protected static final String RESOURCE_DIRECTORY = "files/public/";
+  private static final String STATUS_500 = "500 Internal Server Error";
 
-  protected static final String FILE_NOT_FOUND = "files/notfound.html";
+  private static final String RESOURCE_DIRECTORY = "files/public/";
+  private static final String FILE_NOT_FOUND = "files/notfound.html";
+  private static final String INDEX = "files/index.html";
 
-  protected static final String INDEX = "files/index.html";
-
-  protected void start(int port) {
+  private void start(int port) {
     ServerSocket s;
 
     System.out.println("Webserver starting up on port " + port);
@@ -122,7 +122,7 @@ public class WebServer {
       } catch (Exception e) {
         e.printStackTrace();
         try {
-          out.write(makeHeader("500 Internal Server Error").getBytes());
+          out.write(makeHeader(STATUS_500).getBytes());
           out.flush();
         } catch (Exception e2) {};
         try {
@@ -137,7 +137,7 @@ public class WebServer {
    * @param out output stream
    * @param filename resource filename
    */
-  protected void handleGET(BufferedOutputStream out, String filename) {
+  private void handleGET(BufferedOutputStream out, String filename) {
     System.out.println("GET " + filename);
     try {
       File resource = new File(filename);
@@ -161,7 +161,7 @@ public class WebServer {
     } catch (IOException e) {
       e.printStackTrace();
       try {
-        out.write(makeHeader("500 Internal Server Error").getBytes());
+        out.write(makeHeader(STATUS_500).getBytes());
         out.flush();
       } catch (Exception e2) {};
     }
@@ -172,7 +172,7 @@ public class WebServer {
    * @param out output stream
    * @param filename resource filename
    */
-  protected void handleHEAD(BufferedOutputStream out, String filename) {
+  private void handleHEAD(BufferedOutputStream out, String filename) {
     System.out.println("HEAD " + filename);
     try {
       File resource = new File(filename);
@@ -185,7 +185,7 @@ public class WebServer {
     } catch (IOException e) {
       e.printStackTrace();
       try {
-        out.write(makeHeader("500 Internal Server Error").getBytes());
+        out.write(makeHeader(STATUS_500).getBytes());
         out.flush();
       } catch (Exception e2) {};
     }
@@ -197,7 +197,7 @@ public class WebServer {
    * @param out output stream
    * @param filename resource filename
    */
-  protected void handlePUT(BufferedInputStream in, BufferedOutputStream out, String filename) {
+  private void handlePUT(BufferedInputStream in, BufferedOutputStream out, String filename) {
     System.out.println("PUT " + filename);
     try {
       File resource = new File(filename);
@@ -225,7 +225,7 @@ public class WebServer {
     } catch (Exception e) {
       e.printStackTrace();
       try {
-        out.write(makeHeader("500 Internal Server Error").getBytes());
+        out.write(makeHeader(STATUS_500).getBytes());
         out.flush();
       } catch (Exception e2) {};
     }
@@ -236,7 +236,7 @@ public class WebServer {
    * @param in input stream for reading the binary file
    * @param out output stream
    */
-  protected void handlePOST(BufferedInputStream in, BufferedOutputStream out, String filename) {
+  private void handlePOST(BufferedInputStream in, BufferedOutputStream out, String filename) {
     System.out.println("POST ");
     try {
 
@@ -262,7 +262,7 @@ public class WebServer {
     } catch (Exception e) {
       e.printStackTrace();
       try {
-        out.write(makeHeader("500 Internal Server Error").getBytes());
+        out.write(makeHeader(STATUS_500).getBytes());
         out.flush();
       } catch (Exception e2) {};
     }
@@ -273,7 +273,7 @@ public class WebServer {
    * @param out output stream
    * @param filename name of the resource that needs to be deleted
    */
-  protected void handleDELETE(BufferedOutputStream out, String filename) {
+  private void handleDELETE(BufferedOutputStream out, String filename) {
     System.out.println("DELETE " + filename);
     try {
       File resource = new File(filename);
@@ -296,7 +296,7 @@ public class WebServer {
     } catch (Exception e) {
       e.printStackTrace();
       try {
-        out.write(makeHeader("500 Internal Server Error").getBytes());
+        out.write(makeHeader(STATUS_500).getBytes());
         out.flush();
       } catch (Exception e2) {};
     }
@@ -307,7 +307,7 @@ public class WebServer {
    * @param status response status
    * @return the header written
    */
-  protected String makeHeader(String status) {
+  private String makeHeader(String status) {
     String header = "HTTP/1.0 " + status + "\r\n";
     header += "Server: Bot\r\n";
     header += "\r\n";
@@ -323,7 +323,7 @@ public class WebServer {
    * @param length resource length
    * @return the header written
    */
-  protected String makeHeader(String status, String filename, long length) {
+  private String makeHeader(String status, String filename, long length) {
     String header = "HTTP/1.0 " + status + "\r\n";
     if(filename.endsWith(".html") || filename.endsWith(".htm"))
       header += "Content-Type: text/html\r\n";

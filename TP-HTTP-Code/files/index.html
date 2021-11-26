@@ -10,6 +10,9 @@
 <body>
 <h1>Congrats !</h1>
 
+<div id="easteregg">
+    <!--secret code : reseau-->
+</div>
 
 <form action="" method="" class="get-form">
     <h3> GET Request </h3>
@@ -35,7 +38,7 @@
     </div>
 </div>
 
-
+<h2> PUT </h2>
 <div>
     <form method="put"> Select a file to PUT:
         <input type="file" name="put-file" id="put-file" accept="text/html, video/mp4, image/png, image/jpg, audio/mp3, video/x-msvideo, text/css, application/pdf, application/vnd.oasis.opendocument.text"/>
@@ -45,6 +48,7 @@
     </div>
 </div>
 
+<h2> DELETE </h2>
 
 <div>
     <form method="delete"> Write the name of the file you want to DELETE:
@@ -54,6 +58,8 @@
         <input type="button" id="delete-button" value="DELETE" name="delete-button"/>
     </div>
 </div>
+
+<input style = "position:absolute; right:20px; bottom:20px;" type="button" id="easter-egg-button" value="I"/>
 
 
 <script>
@@ -118,11 +124,22 @@
 
         });
 
-        const input = prompt("What's the secret word ?");
-        if (input == 'china') {
-
-        }
-    })
+        $('#easter-egg-button').click((e) => {
+            const input = prompt("What's the secret word ?");
+            if (input == 'reseau') {
+                let source = document.createElement('source');
+                source.src = "./videoplayback.mp4";
+                source.type = "video/mp4";
+                let video = document.createElement('video');
+                video.width = "600";
+                video.height="400";
+                video.autoplay = true;
+                video.appendChild(source);
+                $('#easteregg')[0].appendChild(video);
+                document.reload();
+            }
+        });
+    });
 </script>
 
 

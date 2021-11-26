@@ -1,5 +1,7 @@
 # Compiled class file
 *.class
+Code-Socket/out/*
+TP-HTTP-Code/out/*
 
 # Log file
 *.log
